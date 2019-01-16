@@ -1,6 +1,26 @@
 const router = require('express').Router();
 const url = require('./url');
 
+router.get('/api/get', (req, res) => {
+  console.log(req.body);
+  res.send({ express: 'Hello From Express' });
+  // console.log('getting route')
+  // res.json([{
+  //   id: 1,
+  //   username: 'mariana'
+  // }, {
+  //   id: 2,
+  //   username: "german"
+  // }]);
+});
+
+router.post('/api/post', (req, res) => {
+  console.log(req.body);
+  res.send(
+    `I received your POST request. This is what you sent me: 
+    ${req.body.post}`
+  );
+});
 
 router.get('/:hash', async (req, res, next) => {
 
@@ -32,15 +52,18 @@ router.get('/:hash', async (req, res, next) => {
 
 
 router.post('/', async (req, res, next) => {
-
+  
   // TODO: Validate 'req.body.url' presence
-
-  try {
-    let shortUrl = await url.shorten(req.body.url, url.generateHash(req.body.url));
-    res.json(shortUrl);
-  } catch (e) {
-    // TODO: Personalized Error Messages
-    next(e);
+  if (!req.body.url) {
+    // TODO: Handle if url does not exists
+  } else {
+    try {
+      let shortUrl = await url.shorten(req.body.url, url.generateHash(req.body.url));
+      res.json(shortUrl);
+    } catch (e) {
+      // TODO: Personalized Error Messages
+      next(e);
+    }
   }
 });
 

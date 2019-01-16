@@ -9,9 +9,6 @@ module.exports = {
   Mongo: {
     HOST: process.env.MONGO_DB_HOST,
     PORT: Number(process.env.MONGO_DB_PORT),
-    NAME: process.env.MONGO_DB_NAME,
-    USER: process.env.MONGO_DB_USER,
-    PASS: process.env.MONGO_DB_PASS,
-    AUTH: process.env.MONGO_DB_AUTH,
+    NAME: process.env.MONGO_DB_NAME
   }
 };
