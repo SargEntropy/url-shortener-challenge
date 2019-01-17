@@ -6,6 +6,9 @@ const UrlModel = require('./schema');
 const parseUrl = require('url').parse;
 const validUrl = require('valid-url');
 
+const crypto = require('crypto-js');
+const btoa = require('btoa');
+
 /**
  * Lookup for existant, active shortened URLs by hash.
  * 'null' will be returned when no matches were found.
@@ -26,7 +29,8 @@ async function getUrl(hash) {
  */
 function generateHash(url) {
   // return uuidv5(url, uuidv5.URL);
-  return uuidv4();
+  // return uuidv4();
+  return btoa(crypto.SHA512(url).toString()).substr(0, 9);
 }
 
 /**
@@ -50,17 +54,12 @@ async function shorten(url, hash) {
   if (!isValid(url)) {
     throw new Error('Invalid URL');
   }
-  console.log('Url provided is valid')
 
   // Get URL components for metrics sake
   const urlComponents = parseUrl(url);
-  console.log(urlComponents);
   const protocol = urlComponents.protocol || '';
-  console.log(protocol);
   const domain = `${urlComponents.host || ''}${urlComponents.auth || ''}`;
-  console.log(domain);
   const path = `${urlComponents.path || ''}${urlComponents.hash || ''}`;
-  console.log(path);
 
   // Generate a token that will allow an URL to be removed (logical)
   // const removeToken = generateRemoveToken();
@@ -76,33 +75,32 @@ async function shorten(url, hash) {
   //   removeToken,
   //   active: true
   // });
+  console.log('Generated hash: ' + hash);
   const shortUrl = new UrlModel({
     url,
     protocol,
     domain,
     path,
+    hash,
     isCustom: false,
     active: true,
     createdAt: new Date()
   });
 
   
-    // const saved = await shortUrl.save();
-    // TODO: Handle save errors
+  // TODO: Handle save errors
   try {
     const saved = await shortUrl.save();
   } catch (e) {
     console.log(e);
   }
 
-  // return {
-  //   url,
-  //   shorten: `${SERVER}/${hash}`,
-  //   hash,
-  //   removeUrl: `${SERVER}/${hash}/remove/${removeToken}`
-  // };
-  return url;
-
+  return {
+    url,
+    shorten: `${SERVER}/${hash}`,
+    hash
+    // removeUrl: `${SERVER}/${hash}/remove/${removeToken}`
+  };
 }
 
 /**

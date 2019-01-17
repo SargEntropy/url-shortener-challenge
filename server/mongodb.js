@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise; // Use JavaScript promises
 const { Mongo } = require('../environment');
 
-// const uri = `mongodb://${Mongo.HOST}:${Mongo.PORT}/${Mongo.NAME}`;
-const uri = `mongodb://localhost:27017/shortener`;
+const uri = `mongodb://${Mongo.HOST}:${Mongo.PORT}/${Mongo.NAME}`;
 
 /**
  , {

@@ -9,11 +9,11 @@ module.exports = mongo.model('Url', new mongoose.Schema({
 
   user: mongoose.Schema.Types.ObjectId,
 
-  // hash: {
-  //   type: String,
-  //   required: true,
-  //   unique: true
-  // },
+  hash: {
+    type: String,
+    required: true,
+    unique: true
+  },
   isCustom: {
     type: Boolean,
     required: true
@@ -38,5 +38,10 @@ module.exports = mongo.model('Url', new mongoose.Schema({
     type: Boolean,
     required: true,
     default: true
+  },
+
+  clicks: {
+    type: Number,
+    default: 0
   }
 }));
