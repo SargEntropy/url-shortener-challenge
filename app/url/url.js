@@ -1,4 +1,4 @@
-const uuidv4 = require('uuid/v4');
+// const uuidv4 = require('uuid/v4');
 const { domain } = require('../../environment');
 const SERVER = `${domain.protocol}://${domain.host}`;
 
@@ -12,11 +12,16 @@ const btoa = require('btoa');
 /**
  * Lookup for existant, active shortened URLs by hash.
  * 'null' will be returned when no matches were found.
+ * Along with this clicks counter will increase by 1.
  * @param {string} hash
  * @returns {object}
  */
 async function getUrl(hash) {
-  let source = await UrlModel.findOne({ active: true, hash });
+  let source = await UrlModel.findOneAndUpdate(
+    { active: true, hash },
+    { $inc: { clicks: 1 } },
+    { new: true }
+  );
   return source;
 }
 
@@ -24,7 +29,7 @@ async function getUrl(hash) {
  * Generate an unique hash-ish- for an URL.
  * TODO: Deprecated the use of UUIDs.
  * TODO: Implement a shortening algorithm
- * @param {string} id
+ * @param {string} url
  * @returns {string} hash
  */
 function generateHash(url) {
@@ -35,10 +40,11 @@ function generateHash(url) {
 
 /**
  * Generate a random token that will allow URLs to be (logical) removed
- * @returns {string} uuid v4
+ * @returns {string} token
  */
 function generateRemoveToken() {
-  return uuidv4();
+  // return uuidv4();
+  return Math.random().toString(36).substring(2, 10);
 }
 
 /**
@@ -62,20 +68,9 @@ async function shorten(url, hash) {
   const path = `${urlComponents.path || ''}${urlComponents.hash || ''}`;
 
   // Generate a token that will allow an URL to be removed (logical)
-  // const removeToken = generateRemoveToken();
+  const removeToken = generateRemoveToken();
 
   // Create a new model instance
-  // const shortUrl = new UrlModel({
-  //   url,
-  //   protocol,
-  //   domain,
-  //   path,
-  //   hash,
-  //   isCustom: false,
-  //   removeToken,
-  //   active: true
-  // });
-  console.log('Generated hash: ' + hash);
   const shortUrl = new UrlModel({
     url,
     protocol,
@@ -83,23 +78,25 @@ async function shorten(url, hash) {
     path,
     hash,
     isCustom: false,
-    active: true,
-    createdAt: new Date()
+    removeToken,
+    active: true
   });
 
-  
   // TODO: Handle save errors
   try {
     const saved = await shortUrl.save();
+    if (!saved) throw new Error('Could not save the document');
   } catch (e) {
-    console.log(e);
+    console.error('An error occurred while saving url');
+    e.status = 400;
+    console.error(e);
   }
 
   return {
     url,
     shorten: `${SERVER}/${hash}`,
-    hash
-    // removeUrl: `${SERVER}/${hash}/remove/${removeToken}`
+    hash,
+    removeUrl: `${SERVER}/${hash}/remove/${removeToken}`
   };
 }
 
@@ -112,10 +109,27 @@ function isValid(url) {
   return validUrl.isUri(url);
 }
 
+/**
+ * Look for existant, active shortened URls by
+ * hash and removeToken. Will set to false 
+ * active field.
+ * @param {string} hash
+ * @param {string} removeToken
+ * @returns {object}
+ */
+async function removeUrl({ hash, removeToken }) {
+  let source = await UrlModel.findOneAndUpdate(
+    { active: true, hash, removeToken },
+    { $set: { active: false }
+  });
+  return source;
+}
+
 module.exports = {
   shorten,
   getUrl,
   generateHash,
   generateRemoveToken,
-  isValid
+  isValid,
+  removeUrl
 }

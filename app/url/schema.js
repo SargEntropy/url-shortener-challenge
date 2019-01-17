@@ -19,10 +19,10 @@ module.exports = mongo.model('Url', new mongoose.Schema({
     required: true
   },
 
-  // removeToken: {
-  //   type: String,
-  //   required: true
-  // },
+  removeToken: {
+    type: String,
+    required: true
+  },
 
   protocol: String,
   domain: String,
