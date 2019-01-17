@@ -52,13 +52,19 @@ router.get('/:hash', async (req, res, next) => {
 
 
 router.post('/', async (req, res, next) => {
-  
-  // TODO: Validate 'req.body.url' presence
+  console.log('post method has been called');
+  console.log(req.body);
+  // TODO: Validate 'req.body.ur l' presence
   if (!req.body.url) {
     // TODO: Handle if url does not exists
+    console.log('catch here')
   } else {
     try {
-      let shortUrl = await url.shorten(req.body.url, url.generateHash(req.body.url));
+      console.log('provided URL: ' + req.body.url)
+      let shortUrl = await url.shorten(req.body.url);
+      console.log('after shorten');
+      console.log(shortUrl);
+      // let shortUrl = await url.shorten(req.body.url, url.generateHash(req.body.url));
       res.json(shortUrl);
     } catch (e) {
       // TODO: Personalized Error Messages

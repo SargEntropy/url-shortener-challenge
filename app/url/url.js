@@ -50,37 +50,58 @@ async function shorten(url, hash) {
   if (!isValid(url)) {
     throw new Error('Invalid URL');
   }
+  console.log('Url provided is valid')
 
   // Get URL components for metrics sake
   const urlComponents = parseUrl(url);
+  console.log(urlComponents);
   const protocol = urlComponents.protocol || '';
+  console.log(protocol);
   const domain = `${urlComponents.host || ''}${urlComponents.auth || ''}`;
+  console.log(domain);
   const path = `${urlComponents.path || ''}${urlComponents.hash || ''}`;
+  console.log(path);
 
-  // Generate a token that will alow an URL to be removed (logical)
-  const removeToken = generateRemoveToken();
+  // Generate a token that will allow an URL to be removed (logical)
+  // const removeToken = generateRemoveToken();
 
   // Create a new model instance
+  // const shortUrl = new UrlModel({
+  //   url,
+  //   protocol,
+  //   domain,
+  //   path,
+  //   hash,
+  //   isCustom: false,
+  //   removeToken,
+  //   active: true
+  // });
   const shortUrl = new UrlModel({
     url,
     protocol,
     domain,
     path,
-    hash,
     isCustom: false,
-    removeToken,
-    active: true
+    active: true,
+    createdAt: new Date()
   });
 
-  const saved = await shortUrl.save();
-  // TODO: Handle save errors
+  
+    // const saved = await shortUrl.save();
+    // TODO: Handle save errors
+  try {
+    const saved = await shortUrl.save();
+  } catch (e) {
+    console.log(e);
+  }
 
-  return {
-    url,
-    shorten: `${SERVER}/${hash}`,
-    hash,
-    removeUrl: `${SERVER}/${hash}/remove/${removeToken}`
-  };
+  // return {
+  //   url,
+  //   shorten: `${SERVER}/${hash}`,
+  //   hash,
+  //   removeUrl: `${SERVER}/${hash}/remove/${removeToken}`
+  // };
+  return url;
 
 }
 

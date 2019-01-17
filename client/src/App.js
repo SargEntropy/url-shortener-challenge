@@ -4,7 +4,7 @@ import './App.css';
 class App extends Component {
   state = {
     response: '',
-    post: '',
+    url: '',
     responseToPost: ''
   };
 
@@ -25,34 +25,33 @@ class App extends Component {
 
   handleSubmit = async e => {
     e.preventDefault();
-    const response = await fetch('/api/world', {
+    console.log('React fetch post');
+    await fetch('/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ post: this.state.post })
+      body: JSON.stringify({ url: this.state.url })
     });
-    const body = await response.text();
-    console.log('body post');
-    this.setState({ responseToPost: body });
+    // const body = await response.text();
+    // console.log('body post');
+    // console.log(body);
+    // this.setState({ responseToPost: body });
   }
 
   render() {
     return (
-      <div>
-        {this.state.response}
-        <form onSubmit={this.handleSubmit}>
-          <p>
-            <strong>Post to Server:</strong>
-          </p>
-          <input 
-            type="text"
-            value={this.state.post}
-            onChange={e => this.setState({ post: e.target.value })}
+      <div className="ui container">
+        <form className="ui form" onSubmit={this.handleSubmit}>
+          <div className="field">
+            <label>Paste your URL here:</label>
+            <input 
+              type="text"
+              value={this.state.url}
+              onChange={e => this.setState({ url: e.target.value })}
             />
-            <button type="submit">Submit</button>
-        </form>
-        <p>{this.state.responseToPost}</p>
+          </div>
+        </ form>
       </div>
     )
   }
