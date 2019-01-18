@@ -32,7 +32,10 @@ module.exports = mongo.model('Url', new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  removedAt: Date,
+  removedAt: {
+    type: Date,
+    default: null
+  },
 
   active: {
     type: Boolean,

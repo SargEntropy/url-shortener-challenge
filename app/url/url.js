@@ -120,8 +120,13 @@ function isValid(url) {
 async function removeUrl({ hash, removeToken }) {
   let source = await UrlModel.findOneAndUpdate(
     { active: true, hash, removeToken },
-    { $set: { active: false }
+    { $set: { active: false, removedAt: new Date() }
   });
+  return source;
+}
+
+async function getAllContent() {
+  let source = await UrlModel.find({ active: true });
   return source;
 }
 
@@ -131,5 +136,6 @@ module.exports = {
   generateHash,
   generateRemoveToken,
   isValid,
-  removeUrl
+  removeUrl,
+  getAllContent
 }

@@ -1,6 +1,11 @@
 const router = require('express').Router();
 const url = require('./url');
 
+router.get('/api/content', async (req, res, next) => {
+  let content = await url.getAllContent();
+  res.json(content);
+});
+
 router.get('/:hash', async (req, res, next) => {
 
   try {
@@ -37,7 +42,6 @@ router.get('/:hash', async (req, res, next) => {
 
 });
 
-
 router.post('/', async (req, res, next) => {
   // TODO: Validate 'req.body.url' presence
   if (!req.body.url) {
@@ -60,6 +64,7 @@ router.post('/', async (req, res, next) => {
 
 router.delete('/:hash/remove/:removeToken', async (req, res, next) => {
   // TODO: Remove shortened URL if the remove token and the hash match
+  console.log('called');
   try {
     let removedUrl = await url.removeUrl(req.params);
     if (!removedUrl) {
