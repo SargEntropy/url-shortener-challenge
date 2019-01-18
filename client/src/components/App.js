@@ -1,76 +1,67 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
-import URLTable from './URLTable';
+import Addition from './urlMethods/Addition';
+import UrlTable from './urlTable/UrlTable';
 
 class App extends Component {
   state = {
     urls: [],
-    response: '',
-    url: '',
-    shortUrl: '',
-    toBeDeleted: ''
+    postedUrl: ''
   };
 
-  componentDidMount() {
-
-  }
-
-  handleSubmit = e => {
-    e.preventDefault();
-    axios.post('/', { url: this.state.url })
-    .then(result => {
+  onUrlSubmit = async url => {
+    try {
+      let result = await axios.post('/', { url: url });
       if (result.status === 200) {
-        this.setState({url: '', shortUrl: result.data.shorten });
+        this.setState({ postedUrl: result.data });
       }
-    }).catch(err => {
+      this.onGetAllContent();
+    } catch (err) {
+      if (!url) alert('Please provide an URL');
       console.log(err);
-    });
+    }
   }
 
-  handleDeletionSubmit = e => {
-    e.preventDefault();
-    let url = new URL(this.state.toBeDeleted);
-    url = url.pathname.replace(/\//g, '');
-    let hash = url.split('remove')[0];
-    let removeToken = url.split('remove')[1];
-    axios.delete(`/${hash}/remove/${removeToken}`)
-      .then(result => {
-        console.log(result);
-      }).catch(err => {
-        console.log(err);
-      })
+  onGetAllContent = async () => {
+    try {
+      let result = await axios.get('/api/content');
+      if (result.status === 200) {
+        this.setState({ urls: result.data })
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  componentDidMount() {
+    this.onGetAllContent();
+  }
+
+  onHandleDelete = async url => {
+    let pathname = new URL(url).pathname.replace(/\//g, '');
+    let hash = pathname.split('remove')[0];
+    let removeToken = pathname.split('remove')[1];
+    try {
+      let newUrlList = this.state.urls.filter(item => {
+        return item.removeToken !== removeToken
+      });
+      let response = await axios.delete(`/${hash}/remove/${removeToken}`);
+      if (response.status === 200) {
+        this.setState({ urls: newUrlList })
+      }
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   render() {
     return (
       <div className="ui container">
-        <form className="ui form" onSubmit={this.handleSubmit}>
-          <div className="field">
-            <label>Paste your URL here:</label>
-            <input 
-              type="text"
-              value={this.state.url}
-              onChange={e => this.setState({ url: e.target.value })}
-            />
-          </div>
-          <div className="field">
-            <h4 className="ui header">
-              <a href={this.state.shortUrl}>{this.state.shortUrl}</a>
-            </h4>
-          </div>
-        </form>
-        <form className="ui form" onSubmit={this.handleDeletionSubmit}>
-          <div className="field">
-            <label>URL to delete:</label>
-            <input
-              type="text"
-              value={this.state.toBeDeleted}
-              onChange={e => this.setState({ toBeDeleted: e.target.value})}
-              />
-          </div>
-        </form>
-        <URLTable />
+        <Addition onUrlSubmit={this.onUrlSubmit} />
+        <div className="ui segment">
+          <UrlTable urls={this.state.urls} onDeleteUrl={this.onHandleDelete}/>
+        </div>
       </div>
     )
   }

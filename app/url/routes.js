@@ -64,7 +64,6 @@ router.post('/', async (req, res, next) => {
 
 router.delete('/:hash/remove/:removeToken', async (req, res, next) => {
   // TODO: Remove shortened URL if the remove token and the hash match
-  console.log('called');
   try {
     let removedUrl = await url.removeUrl(req.params);
     if (!removedUrl) {
