@@ -55,6 +55,7 @@ router.post('/', async (req, res, next) => {
       res.json(shortUrl);
     } catch (e) {
       // TODO: Personalized Error Messages
+      console.log(e);
       e.status = 400;
       next(e);
     }

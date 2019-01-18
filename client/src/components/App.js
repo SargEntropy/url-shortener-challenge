@@ -13,10 +13,12 @@ class App extends Component {
   onUrlSubmit = async url => {
     try {
       let result = await axios.post('/', { url: url });
-      if (result.status === 200) {
+      if (result.status === 200 && !result.data.error) {
         this.setState({ postedUrl: result.data });
+        this.onGetAllContent();
+      } else {
+        alert(result.data.message);
       }
-      this.onGetAllContent();
     } catch (err) {
       if (!url) alert('Please provide an URL');
       console.log(err);

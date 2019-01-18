@@ -85,19 +85,18 @@ async function shorten(url, hash) {
   // TODO: Handle save errors
   try {
     const saved = await shortUrl.save();
-    if (!saved) throw new Error('Could not save the document');
+    return {
+      url,
+      shorten: `${SERVER}/${hash}`,
+      hash,
+      removeUrl: `${SERVER}/${hash}/remove/${removeToken}`
+    };
   } catch (e) {
-    console.error('An error occurred while saving url');
-    e.status = 400;
+    console.error('An error occurred while saving url: ');
     console.error(e);
+    return { code: e.code, message: e.message, error: true };
   }
 
-  return {
-    url,
-    shorten: `${SERVER}/${hash}`,
-    hash,
-    removeUrl: `${SERVER}/${hash}/remove/${removeToken}`
-  };
 }
 
 /**
@@ -120,7 +119,9 @@ function isValid(url) {
 async function removeUrl({ hash, removeToken }) {
   let source = await UrlModel.findOneAndUpdate(
     { active: true, hash, removeToken },
-    { $set: { active: false, removedAt: new Date() }
+    { $set: { active: false, 
+      removedAt: new Date(),
+      hash: removeToken }
   });
   return source;
 }
