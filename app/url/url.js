@@ -29,6 +29,8 @@ async function getUrl(hash) {
  * Generate an unique hash-ish- for an URL.
  * TODO: Deprecated the use of UUIDs.
  * TODO: Implement a shortening algorithm
+ * NOTE: This approach will restrict save 
+ * an URL twice.
  * @param {string} url
  * @returns {string} hash
  */
@@ -36,6 +38,23 @@ function generateHash(url) {
   // return uuidv5(url, uuidv5.URL);
   // return uuidv4();
   return btoa(crypto.SHA512(url).toString()).substr(0, 9);
+}
+
+/**
+ * Generate an unique hash-ish- for an URL.
+ * NOTE: This approach will allow save an
+ * URL multiple times.
+ * @param {string} alphabet
+ * @param {number} size
+ * @returns {string} hash
+ */
+function generateHashVanilla(alphabet, size) {
+  size = size || 8;
+  var id = '';
+  while (size--) {
+    id += alphabet[Math.random() * alphabet.length | 0];
+  }
+  return id;
 }
 
 /**
@@ -135,6 +154,7 @@ module.exports = {
   shorten,
   getUrl,
   generateHash,
+  generateHashVanilla,
   generateRemoveToken,
   isValid,
   removeUrl,

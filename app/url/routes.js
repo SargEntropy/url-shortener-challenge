@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const url = require('./url');
+const safeCharacters = 'bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz';
 
 router.get('/api/content', async (req, res, next) => {
   let content = await url.getAllContent();
@@ -51,7 +52,8 @@ router.post('/', async (req, res, next) => {
     next(urlNotProvided);
   } else {
     try {
-      let shortUrl = await url.shorten(req.body.url, url.generateHash(req.body.url));
+      // let shortUrl = await url.shorten(req.body.url, url.generateHash(req.body.url));
+      let shortUrl = await url.shorten(req.body.url, url.generateHashVanilla(safeCharacters));
       res.json(shortUrl);
     } catch (e) {
       // TODO: Personalized Error Messages
