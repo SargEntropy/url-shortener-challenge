@@ -9,6 +9,8 @@ const validUrl = require('valid-url');
 const crypto = require('crypto-js');
 const btoa = require('btoa');
 
+const chars = 'bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz';
+
 /**
  * Lookup for existant, active shortened URLs by hash.
  * 'null' will be returned when no matches were found.
@@ -48,12 +50,21 @@ function generateHash(url) {
  * @param {number} size
  * @returns {string} hash
  */
-function generateHashVanilla(alphabet, size) {
+function generateHashVanilla(size) {
   size = size || 8;
   var id = '';
   while (size--) {
-    id += alphabet[Math.random() * alphabet.length | 0];
+    id += chars[Math.random() * chars.length | 0];
   }
+  return id;
+}
+
+function generateHashCombined(url, size) {
+  size = size || 8;
+  url = btoa(crypto.SHA256(url));
+  let id = url.substr(url.length - size, url.length);
+  id = id.slice(0, -1) + url[Math.random() * url.length | 0];
+  id = id.replace('=', chars[Math.random() * chars.length | 0]);
   return id;
 }
 
@@ -155,6 +166,7 @@ module.exports = {
   getUrl,
   generateHash,
   generateHashVanilla,
+  generateHashCombined,
   generateRemoveToken,
   isValid,
   removeUrl,
